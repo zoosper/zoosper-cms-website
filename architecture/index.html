@@ -11,4 +11,10 @@
 <h2 id="presentation">Presentation</h2>
 <p>Latte is the current default template engine, not a platform-wide restriction. The architecture remains API-first and template-engine integration should remain replaceable.</p>
 <h2 id="security">Security</h2>
-<p>Authentication, CSRF, route permissions, two-factor authentication, security headers, sanitisation, rate-limiting seams and audit logging are explicit runtime boundaries.</p></main></div><footer>Zoosper CMS documentation</footer></body></html>
+<p>Authentication, CSRF, route permissions, two-factor authentication, security headers, sanitisation, rate-limiting seams and audit logging are explicit runtime boundaries.</p>
+<h2 id="logging-boundary">Logging boundary</h2>
+<p>Logging is owned by the standalone <code>zoosper/logger</code> package. Core and feature consumers use the native Zoosper logger boundary, while the package delegates physical writes to Marko <code>FileLogger</code> with <code>DailyRotation</code>. Module <code>config/logging.php</code> contributions remain discoverable and retain their logical channel and legacy filename identities. Root Composer owns <code>zoosper/logger</code>; the package owns <code>marko/log</code> and <code>marko/log-file</code>.</p>
+<h3 id="feature-lifecycle-apis">Feature lifecycle APIs</h3>
+<p>Feature modules own lifecycle routes and response mapping. Page archive, restore and guarded permanent deletion use Page-owned application/domain boundaries; Auth owns only PAT identity and scope validation.</p>
+<h3 id="security-closure-boundaries">Security closure boundaries</h3>
+<p>Recognised environments are local, development, testing, staging and production; empty or unknown values fail boot. Staging and production require secure sessions and enforced salted rate limiting in both HTTP and console service composition. Logger redaction covers credential-bearing keys and Zoosper PAT-shaped values. PAT issue and revocation require audit infrastructure. Successful PAT use updates last-used metadata at most once per five-minute database interval. Session <code>/api/v1/me</code> is read-only; bearer <code>/api/v1/token/me</code> remains the stateless integration identity endpoint.</p></main></div><footer>Zoosper CMS documentation</footer></body></html>

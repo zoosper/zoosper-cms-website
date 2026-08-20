@@ -12,17 +12,19 @@
 <li>Database and Media rollback points</li>
 <li>Annotated immutable release tag</li>
 </ul>
-<h2 id="0-2-starter-experience">0.2 starter experience</h2>
+<h2 id="starter-experience">Starter experience</h2>
 <ul>
-<li>Run <code>php bin/zoosper starter:install</code> twice and verify the second run retains the Site and Pages.</li>
+<li>Run <code>php8.5 bin/zoosper starter:install</code> twice and verify the second run retains the Site and Pages.</li>
 <li>Verify <code>/</code> and <code>/about</code> render through the default starter theme.</li>
 <li>Verify the application-owned session path and starter-theme files pass <code>release:check</code>.</li>
 </ul>
-<h2 id="v0-2-0-alpha-1-final-tag-gate">v0.2.0-alpha.1 final tag gate</h2>
+<h2 id="reusable-final-tag-gate">Reusable final tag gate</h2>
+<pre><code class="language-bash">RELEASE_TAG=v0.3.0-alpha.2
+NEXT_VERSION=0.3.0-alpha.3-dev</code></pre>
 <ul>
-<li>Confirm <code>php bin/zoosper version</code> reports <code>0.2.0-alpha.1</code>.</li>
+<li>Confirm <code>php8.5 bin/zoosper version</code> reports the release version represented by <code>RELEASE_TAG</code>.</li>
 <li>Confirm Admin and API health expose the same authoritative version.</li>
 <li>Run the full test suite, quality gate, fresh-install smoke, compile, manifest check, release check, and documentation build.</li>
 <li>Record manual browser evidence for login/logout, application-owned sessions, Home/About rendering, Page revision restore, Menu rendering, and Media lifecycle.</li>
-<li>Commit and push the release identity, require a clean working tree, then create annotated tag <code>v0.2.0-alpha.1</code>.</li>
+<li>Commit and push the release identity, require a clean working tree, then create annotated tag defined by <code>RELEASE_TAG</code>.</li>
 </ul></main></div><footer>Zoosper CMS documentation</footer></body></html>

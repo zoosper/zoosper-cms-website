@@ -2,11 +2,17 @@
 <ul>
 <li>Clean worktree and reviewed changelog</li>
 <li>Locked Composer installation, validation and audit</li>
-<li>Full Pest suite</li>
+<li>Full Pest suite (including MySQL and SQLite integration test legs)</li>
 <li>JavaScript syntax and strict repository gate</li>
-<li>Disposable fresh-install smoke</li>
-<li>Module manifest compilation and freshness</li>
-<li>Release checks under production-safe configuration</li>
+<li>Static analysis baseline status review (Psalm zero-baseline drive or reviewed residual)</li>
+<li>Disposable fresh-install smoke and containerized production boot verification</li>
+<li>Foreign key referential integrity status check (<code>schema:foreign-keys:status</code>)</li>
+<li>Secret presence, strength, and placeholder validation (<code>APP_KEY</code>, <code>TWO_FACTOR_ENCRYPTION_KEY</code>, <code>RATE_LIMIT_IDENTITY_SALT</code>)</li>
+<li>Content Security Policy (CSP) enforcement verification (<code>report_only =&gt; false</code>)</li>
+<li>Media derivative queue worker health and pre-decode limit checks</li>
+<li>Module asset pipeline adversarial path-normalisation and extension-allow-list tests</li>
+<li>Module manifest compilation and freshness (<code>module:manifest:check</code>)</li>
+<li>Release checks under production-safe configuration (<code>release:check</code>)</li>
 <li>Live frontend, API health and Admin login checks</li>
 <li>Authenticated Admin smoke journey</li>
 <li>Database and Media rollback points</li>
@@ -19,12 +25,20 @@
 <li>Verify the application-owned session path and starter-theme files pass <code>release:check</code>.</li>
 </ul>
 <h2 id="reusable-final-tag-gate">Reusable final tag gate</h2>
-<pre><code class="language-bash">RELEASE_TAG=v0.3.0-alpha.3
-NEXT_VERSION=0.3.0-alpha.4-dev</code></pre>
+<pre><code class="language-bash">RELEASE_TAG=v0.3.0-alpha.4
+NEXT_VERSION=0.3.0-alpha.5-dev</code></pre>
 <ul>
 <li>Confirm <code>php8.5 bin/zoosper version</code> reports the release version represented by <code>RELEASE_TAG</code>.</li>
 <li>Confirm Admin and API health expose the same authoritative version.</li>
 <li>Run the full test suite, quality gate, fresh-install smoke, compile, manifest check, release check, and documentation build.</li>
 <li>Record manual browser evidence for login/logout, application-owned sessions, Home/About rendering, Page revision restore, Menu rendering, and Media lifecycle.</li>
 <li>Commit and push the release identity, require a clean working tree, then create annotated tag defined by <code>RELEASE_TAG</code>.</li>
+</ul>
+<h3 id="foreign-key-release-gate">Foreign-key release gate</h3>
+<ul>
+<li>Run <code>php8.5 bin/zoosper schema:foreign-keys:status --format=json</code> and require <code>add=0</code>, <code>mismatch=0</code>, and <code>sqlite_rebuild_required=0</code>.</li>
+<li>Confirm <code>php8.5 bin/zoosper release:check</code> reports a passing <code>foreign-keys</code> result with the same counts.</li>
+<li>Do not retry a failed MySQL apply blindly; inspect status because earlier DDL statements may already have succeeded.</li>
+<li>For SQLite, use explicit data-preserving rebuild migrations for existing-table foreign-key changes.</li>
+<li>Before release, compile the module manifest so the independent <code>module-manifest</code> readiness check is fresh.</li>
 </ul></main></div><footer>Zoosper CMS documentation</footer></body></html>

@@ -2,9 +2,35 @@
 <p>Zoosper uses versioned API routes and a consistent JSON response envelope. The public health endpoint is <code>/api/v1/health</code> and reports service status plus the central CMS version.</p>
 <p>Authentication endpoints and protected identity endpoints are available through the API module. API parity with every Admin-managed resource is not yet complete in the alpha line.</p>
 <p>API responses must not expose development stack traces or secrets, even when web development diagnostics are enabled elsewhere.</p>
+<h2 id="authentication-and-csrf-model">Authentication and CSRF model</h2>
+<p>Zoosper API endpoints support two distinct authentication contexts with explicit CSRF security policies:</p>
+<ol>
+<li><strong>Stateless Token Authentication (Bearer / Personal Access Tokens):</strong></li>
+<p>- API clients authenticating via <code>Authorization: Bearer &lt;token&gt;</code> operate statelessly without browser session cookies. - Because Bearer tokens are not automatically attached by web browsers on cross-origin requests, CSRF validation is not required for Bearer-authenticated requests.</p>
+</ol>
+<ol>
+<li><strong>Stateful Session-Based API Interactions:</strong></li>
+<p>- Any stateful <code>/api/*</code> mutations invoked within an authenticated web session (such as AJAX calls or browser-based admin extensions relying on session cookies) must include a valid CSRF token. - The CSRF token can be provided either in the <code>X-CSRF-Token</code> request header or within the POST payload as <code>csrf_token</code>. - Requests without a valid CSRF token in session-authenticated contexts are rejected with a 403 Forbidden status (<code>csrf_invalid</code>).</p>
+</ol>
 <h2 id="page-publication-and-revisions">Page publication and revisions</h2>
 <p>PAT clients can publish or unpublish a Site-owned Page with <code>pages:publish</code>, list revisions with <code>pages:read</code>, and restore a revision with <code>pages:write</code>. The token scope is always intersected with the owner&#039;s current Page permission. These routes are stateless, resolve the active Site from the request host, retain pre-mutation revisions, and emit safe audit metadata without bearer secrets or content payloads.</p>
 <h2 id="menu-reads">Menu reads</h2>
 <p>PAT clients can list request-Site Menus, inspect a Menu and its items, and resolve an active frontend tree with <code>menus:read</code> plus the token owner&#039;s current <code>menu.manage</code> permission. These routes are stateless and return not-found semantics across Site boundaries.</p>
 <h2 id="menu-mutations-and-lifecycle">Menu mutations and lifecycle</h2>
-<p>PAT clients with <code>menus:write</code> and current <code>menu.manage</code> can create and update request-Site Menus and items, delete childless items, disable or restore Menus, and permanently delete only inactive empty Menus. Site ownership, same-Menu parent relationships, and published same-Site Page targets are server validated. Audit metadata excludes bearer secrets and Menu content payloads.</p></main></div><footer>Zoosper CMS documentation</footer></body></html>
+<p>PAT clients with <code>menus:write</code> and current <code>menu.manage</code> can create and update request-Site Menus and items, delete childless items, disable or restore Menus, and permanently delete only inactive empty Menus. Site ownership, same-Menu parent relationships, and published same-Site Page targets are server validated. Audit metadata excludes bearer secrets and Menu content payloads.</p>
+<h2 id="roles-and-permissions">Roles and permissions</h2>
+<p>PAT clients can manage administrative roles and inspect system permissions:</p>
+<ul>
+<li><code>GET /api/v1/roles</code> (<code>roles:read</code> scope + <code>role.view</code> or <code>role.manage</code> permission)</li>
+<li><code>GET /api/v1/roles/{id}</code> (<code>roles:read</code> scope + <code>role.view</code> or <code>role.manage</code> permission)</li>
+<li><code>GET /api/v1/permissions</code> (<code>roles:read</code> scope + <code>role.view</code> or <code>role.manage</code> permission)</li>
+<li><code>POST /api/v1/roles</code> (<code>roles:write</code> scope + <code>role.manage</code> permission)</li>
+<li><code>PATCH /api/v1/roles/{id}</code> (<code>roles:write</code> scope + <code>role.manage</code> permission)</li>
+<li><code>DELETE /api/v1/roles/{id}</code> (<code>roles:write</code> scope + <code>role.manage</code> permission)</li>
+</ul>
+<p>Mutations are transacted, sync permission and user mappings atomically, and emit structured audit logs.</p>
+<h2 id="themes-and-url-rewrites">Themes and URL rewrites</h2>
+<ul>
+<li><strong>Themes:</strong> <code>GET /api/v1/themes</code> (<code>themes:read</code>) and <code>POST /api/v1/sites/{id}/theme</code> (<code>themes:write</code>).</li>
+<li><strong>URL Rewrites:</strong> <code>GET /api/v1/url-rewrites</code>, <code>POST /api/v1/url-rewrites</code>, <code>PATCH /api/v1/url-rewrites/{id}</code>, <code>DELETE /api/v1/url-rewrites/{id}</code> (<code>url_rewrites:read</code> / <code>url_rewrites:write</code>).</li>
+</ul></main></div><footer>Zoosper CMS documentation</footer></body></html>

@@ -5,20 +5,79 @@
 <p>The default Admin theme provides a fluid responsive shell with Admin-owned design tokens. Its external module CSS and JavaScript provide light/dark theme selection across both the content area and complete left navigation, desktop navigation collapse, mobile off-canvas navigation, keyboard focus containment and restoration, visible focus states, and reduced-motion support. The sidebar uses theme-owned surface, text, border, hover, active, divider, scrollbar and brand tokens instead of remaining permanently dark. The shell uses full-width <code>minmax(0, 1fr)</code> content so feature screens—not a fixed global maximum—control their useful working width. The top-bar title lives in a clipped flexible region and truncates before it can collide with appearance controls. The desktop collapse control sits at the bottom of its owning sidebar so it does not consume page-title space; the existing Admin runtime remains its single behaviour and persistence owner.</p>
 <p>Shell behaviour is progressive: server-rendered navigation and content remain available if JavaScript is unavailable. Feature modules own semantic destination identifiers in <code>config/admin_menu.php</code>; the Admin renderer maps supported identifiers to a fixed, current-colour SVG allow-list and supplies a neutral fallback without accepting caller-provided SVG. Expanded menu groups are semantic text-only non-interactive headings; collapsed groups become spacing and divider boundaries, while destination links retain icons, escaped labels, active markers and focus treatment. Production templates must not add inline JavaScript, event handlers, styles or dynamic <code>innerHTML</code>. Feature modules should contribute navigation, assets and rendered content through existing Admin contracts rather than depend on shell selectors or implementation classes.</p>
 <h2 id="dashboard-composition">Dashboard composition</h2>
-<p>The Admin-owned Dashboard builds quick-access cards from the module-discovered, permission-filtered <code>AdminMenu</code> result. It does not import feature modules, hardcode their routes, or fabricate operational statistics. This keeps new module menu contributions automatically visible to authorised users while preserving the existing route and ACL boundary.</p>
-<p>A planned follow-up will replace navigation repetition with useful dynamic widgets contributed through an Admin-owned contract. Feature modules will own widget data and presentation contributions; Admin will own permission-filtered discovery, composition, responsive layout, empty/error containment, and user layout preferences without importing concrete feature implementations. Widget reads must remain bounded, site-aware, observable, cache-safe, progressively rendered, and isolated so one failed contributor cannot break the Dashboard. Contributions must preserve route and ACL checks, tenant/site isolation, output escaping, CSP-safe registered assets, and reduced-motion/accessibility behaviour. This work remains separate from Phase 10AR production-security verification.</p>
+<p>The Admin-owned Dashboard composes dynamic widgets and quick-access navigation from module-discovered, permission-filtered contributor contracts via <code>zoosper/admin-dashboard</code>. It does not hardcode feature module routes or fabricate operational statistics.</p>
+<p>Feature modules own widget data and presentation contributions (e.g. Auth contributes active user metrics); the Admin shell owns permission-filtered discovery, composition, responsive layout, empty/error containment, and user layout preferences without importing concrete feature implementations. Widget reads remain bounded, site-aware, observable, cache-safe, progressively rendered, and isolated so one failed contributor cannot break the Dashboard. Contributions preserve route and ACL checks, tenant/site isolation, output escaping, CSP-safe registered assets, and reduced-motion/accessibility behaviour. Per-user preferences support show/hide, persisted order, reset-to-default, and accessible keyboard and drag reordering.</p>
 <h2 id="shared-component-presentation">Shared component presentation</h2>
 <p>The Admin-owned <code>admin-components.css</code> layer provides theme-aware page headers, responsive card grids, cards, controls, forms, toolbars, actions, notices, badges, horizontally scrollable data tables, pagination and empty states. It loads after shell tokens and before feature assets. Default-theme components preserve semantic headings, alert announcements, column scopes and labelled keyboard-scrollable table regions. Responsive controls remain usable at narrow widths and component motion is disabled for <code>prefers-reduced-motion</code>.</p>
+<p>The shared semantic foundation incorporates the approved Fable design language through the existing <code>--admin-*</code> owner: an eight-step spacing scale, three structural radii plus pill, four elevation tiers, stronger text hierarchy and theme-specific Light, Dark and Ocean surfaces. It remains fully fluid; fixed prototype content caps and decorative sidebar count badges are intentionally excluded. Feature packages consume these tokens but do not redefine the global design system.</p>
 <p>Feature modules should reuse these presentation contracts for ordinary Admin UI while retaining ownership of domain data and behaviour. Specialised packages such as <code>zoosper/admin-grid</code> continue to own their markup, scripts and detailed styles; the shared layer does not create a concrete reverse dependency or move Grid behaviour into the Admin module.</p>
 <p>Routes must declare permissions. Stateful Admin mutations are protected by authentication and CSRF middleware. Admin controllers should delegate rendering and domain work to collaborators. Shell redesigns do not alter route methods, permissions, ownership filters or CSRF boundaries.</p>
 <h2 id="page-revisions">Page revisions</h2>
 <p>The Page edit screen lists retained revisions. Administrators with <code>page.manage</code> may preview a historical snapshot or restore it through a CSRF-protected POST action. Restore captures the current Page as a safety revision before applying the selected title, slug, content, publication state, structured content and SEO metadata.</p>
-<h2 id="admin-grid-presentation">Admin Grid presentation</h2>
+<h2 id="admin-grid-presentation-and-column-customisation">Admin Grid presentation and column customisation</h2>
 <p>Admin Grid is a specialised package-owned surface. Its final visual integration layer is registered by <code>packages/zoosper-admin-grid/config/admin_assets.php</code> after the established Grid assets. It uses the Admin shell semantic tokens for fluid light and dark themes without moving Grid styling into the generic Admin module.</p>
 <p>Compact Grid controls align primary actions, view controls, filters, columns, export, saved state, page size, pagination and direct-page navigation in one package-owned responsive workflow. Filters and Columns have explicit relationships, labelled dismiss controls, mutually exclusive disclosure behaviour, visible keyboard focus, opaque theme-aware surfaces and calm inset spacing. At <code>390px</code> (<code>24.375rem</code>), controls and panels stack, active-filter chips remain compact wrapping pills, and wide tables retain bounded touch and keyboard-compatible horizontal scrolling. Package-owned odd/even row styling, permanent row separators, restrained vertical cell boundaries and a stronger header boundary apply to both complete Grid workspaces and standalone Grid tables; hover and keyboard focus override the stripe, while selected rows retain the strongest fill plus a leading-edge marker and their checked selection control. The hierarchy is theme-aware and does not make colour the only selection signal.</p>
 <p>Grid mutations remain POST-only and retain existing permission, CSRF, application-local path, ownership, persistence, export, and audit boundaries. New Admin screens should compose the shared Admin shell with Admin Grid rather than copying Grid markup or styles into feature modules.</p>
+<h3 id="contributing-custom-columns-and-filters">Contributing custom columns and filters</h3>
+<p>Feature modules can contribute new columns and filters to existing Admin Grids without modifying the owning module&#039;s controller or Grid definition class. This extensibility is enabled through module-discovered <code>config/grid_columns.php</code> declarations and <code>GridColumnRegistry</code>.</p>
+<h4 id="declaration-syntax">Declaration syntax</h4>
+<p>Each module creates <code>config/grid_columns.php</code> returning an associative array keyed by target Grid key (e.g. <code>login-history</code>, <code>admin.audit-log</code>, <code>admin.users</code>, <code>pages</code>):</p>
+<pre><code class="language-php">&lt;?php
+
+declare(strict_types=1);
+
+use Zoosper\Grid\GridColumn;
+use Zoosper\Grid\GridFilter;
+
+return [
+    &#039;login-history&#039; =&gt; [
+        &#039;columns&#039; =&gt; [
+            new GridColumn(
+                key: &#039;user_agent&#039;,
+                label: &#039;User Agent&#039;,
+                sortable: false,
+                align: &#039;left&#039;,
+                render: static function (mixed $value, array $row): string {
+                    $value = (string) ($value ?? &#039;&#039;);
+                    if ($value === &#039;&#039;) {
+                        return &#039;&lt;span class=&quot;muted&quot;&gt;&amp;mdash;&lt;/span&gt;&#039;;
+                    }
+
+                    $display = mb_strlen($value) &gt; 60 ? mb_substr($value, 0, 57) . &#039;...&#039; : $value;
+
+                    return htmlspecialchars($display, ENT_QUOTES | ENT_SUBSTITUTE, &#039;UTF-8&#039;);
+                },
+                toggleable: true,
+                defaultVisible: true,
+            ),
+        ],
+        &#039;filters&#039; =&gt; [
+            new GridFilter(&#039;user_agent&#039;, &#039;User Agent Search&#039;),
+        ],
+    ],
+];</code></pre>
+<h4 id="column-configuration-options">Column configuration options</h4>
+<ul>
+<li><code>key</code> (string, required): The database or row field identifier.</li>
+<li><code>label</code> (string, required): The human-readable column header displayed in table headers and column visibility panels.</li>
+<li><code>sortable</code> (bool, default <code>false</code>): Enables server-side column sorting when supported by the underlying repository.</li>
+<li><code>align</code> (string, default <code>&#039;left&#039;</code>): Cell text alignment (<code>&#039;left&#039;</code>, <code>&#039;right&#039;</code>, or <code>&#039;center&#039;</code>).</li>
+<li><code>render</code> (?callable, default <code>null</code>): Custom cell rendering callable <code>fn(mixed $value, array $row): string</code>. If omitted, values are escaped with <code>htmlspecialchars()</code> by default.</li>
+<li><code>toggleable</code> (bool, default <code>true</code>): Determines whether users can toggle column visibility in the Grid workspace.</li>
+<li><code>defaultVisible</code> (bool, default <code>true</code>): Controls initial column visibility before user preferences or saved view states apply.</li>
+</ul>
+<h4 id="rendering-safety-rules">Rendering safety rules</h4>
+<ol>
+<li><strong>Always escape HTML</strong>: Custom render callbacks must explicitly escape untrusted row content using <code>htmlspecialchars(..., ENT_QUOTES | ENT_SUBSTITUTE, &#039;UTF-8&#039;)</code>.</li>
+<li><strong>Never execute SQL in renderers</strong>: Cell render callbacks must consume existing row data provided in <code>$row</code> without triggering secondary queries (preventing N+1 query regressions).</li>
+<li><strong>Keep renderers deterministic</strong>: Avoid nondeterministic output or mutating shared state during grid rendering.</li>
+</ol>
 <h2 id="personal-access-tokens">Personal Access Tokens</h2>
 <p>The Auth module owns the Personal Access Tokens Admin experience, including its Latte markup and registered CSS/JavaScript. The screen composes the shared responsive Admin shell with the specialised Admin Grid, presents canonical service scopes in accessible domain groups, identifies destructive delete scopes, and provides a CSP-safe one-time copy enhancement without placing secrets in redirects, flash messages, logs or persistent client state.</p>
 <p>PAT creation and revocation remain authenticated, centrally CSRF-protected POST operations. Listings and revocation stay scoped to the current Admin identity, and repository, scope-validation, audit and one-time plaintext-disclosure contracts remain Auth-owned. JavaScript only enhances selection feedback and clipboard handling; the server-rendered form remains authoritative and usable without it. Prototype-only statistics, exports, site restrictions, presets and simulated persistence are not production capabilities.</p>
 <h3 id="personal-access-token-presentation-refinement">Personal Access Token presentation refinement</h3>
-<p>The Auth-owned Personal Access Tokens workspace uses a four/three/two/one-column responsive scope layout and PAT-specific Grid cell renderers for truncated names, scope chips, dates, status badges and compact revoke actions. These renderers escape all persisted values and retain the owner-scoped query, POST-only revoke form and central CSRF contract. Presentation overrides remain scoped beneath the PAT workspace and do not alter generic Admin Grid behaviour.</p></main></div><footer>Zoosper CMS documentation</footer></body></html>
+<p>The Auth-owned Personal Access Tokens workspace uses a four/three/two/one-column responsive scope layout and PAT-specific Grid cell renderers for truncated names, scope chips, dates, status badges and compact revoke actions. These renderers escape all persisted values and retain the owner-scoped query, POST-only revoke form and central CSRF contract. Presentation overrides remain scoped beneath the PAT workspace and do not alter generic Admin Grid behaviour.</p>
+<h3 id="fable-bulk-presentation-pass">Fable bulk presentation pass</h3>
+<p>The compact shell, native account disclosure, Dashboard hierarchy and responsive customisation surface consume the shared semantic foundation. Logout remains a CSRF-bearing POST form, the existing shell runtime remains the only theme/navigation behaviour owner, and only real permission-filtered module widgets are rendered. No navigation count badges, fabricated search, notifications, routes or records are introduced.</p>
+<p>The Fable workspace migration now covers Settings and role administration. Settings retains its module-owned assets and scope-aware persistence; role management retains Auth-owned authorization and mutation behaviour. Both use the shared semantic surfaces without introducing duplicate runtimes or fabricated controls.</p>
+<p>Auth security workspaces now apply the Fable hierarchy to Admin-user identity/preferences/roles, PAT creation and review, and permission discovery. Auth remains the asset and behaviour owner; public copies are parity-tested, cache versions are content-derived for this release line, and no mutation, permission, token secrecy, or tenant boundary is delegated to presentation code.</p></main></div><footer>Zoosper CMS documentation</footer></body></html>

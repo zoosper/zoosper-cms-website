@@ -1,4 +1,73 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Zoosper CMS documentation"><title>Themes · Zoosper CMS</title><link rel="icon" href="/assets/favicon.svg"><link rel="stylesheet" href="/assets/site.css"></head><body><header><a class="brand" href="/"><img src="/assets/logo.svg" alt="">Zoosper CMS</a><span>Documentation</span><a href="https://github.com/zoosper/zoosper">GitHub</a></header><div class="shell"><nav class="sidebar" aria-label="Documentation"><div class="nav-section"><strong>Overview</strong><ul><li><a href="/">Overview</a></li></ul></div><div class="nav-section"><strong>Getting started</strong><ul><li><a href="/getting-started/">Getting Started</a></li><li><a href="/deployment/">Deployment</a></li><li><a href="/upgrade/">Upgrade</a></li><li><a href="/troubleshooting/">Troubleshooting</a></li></ul></div><div class="nav-section"><strong>User guide</strong><ul><li><a href="/user-guide/">User Guide</a></li></ul></div><div class="nav-section"><strong>Developer guide</strong><ul><li><a href="/developer-guide/">Developer Guide</a></li><li><a href="/architecture/">Architecture</a></li><li><a href="/modules/">Modules</a></li><li><a href="/configuration/">Configuration</a></li><li><a href="/cli/">Command Line</a></li><li><a href="/api/">API</a></li><li><a href="/admin/">Admin</a></li><li><a class="active" aria-current="page" href="/themes/">Themes</a></li><li><a href="/testing/">Testing</a></li></ul></div><div class="nav-section"><strong>Project</strong><ul><li><a href="/releases/current-development/">Current Development</a></li><li><a href="/release-checklist/">Release Checklist</a></li></ul></div></nav><main class="content"><h1 id="themes">Themes</h1>
-<p>Themes provide frontend templates and assets and are assigned per site. The default theme demonstrates site layout and Page rendering.</p>
-<p>Latte is the current default template engine. Zoosper remains API-first and should allow alternative template engines through replaceable integration contracts.</p>
-<p>Theme templates should consume prepared view data rather than query repositories directly.</p></main></div><footer>Zoosper CMS documentation</footer></body></html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Zoosper CMS documentation"><title>Theme architecture and template overrides · Zoosper CMS</title><link rel="icon" href="/assets/favicon.svg"><link rel="stylesheet" href="/assets/site.css"></head><body><header><a class="brand" href="/"><img src="/assets/logo.svg" alt="">Zoosper CMS</a><span>Documentation</span><a href="https://github.com/zoosper/zoosper">GitHub</a></header><div class="shell"><nav class="sidebar" aria-label="Documentation"><div class="nav-section"><strong>Overview</strong><ul><li><a href="/">Overview</a></li></ul></div><div class="nav-section"><strong>Getting started</strong><ul><li><a href="/getting-started/">Getting Started</a></li><li><a href="/deployment/">Deployment</a></li><li><a href="/upgrade/">Upgrade</a></li><li><a href="/troubleshooting/">Troubleshooting</a></li></ul></div><div class="nav-section"><strong>User guide</strong><ul><li><a href="/user-guide/">User Guide</a></li></ul></div><div class="nav-section"><strong>Developer guide</strong><ul><li><a href="/developer-guide/">Developer Guide</a></li><li><a href="/architecture/">Architecture</a></li><li><a href="/modules/">Modules</a></li><li><a href="/configuration/">Configuration</a></li><li><a href="/cli/">Command Line</a></li><li><a href="/api/">API</a></li><li><a href="/admin/">Admin</a></li><li><a class="active" aria-current="page" href="/themes/">Themes</a></li><li><a href="/testing/">Testing</a></li></ul></div><div class="nav-section"><strong>Project</strong><ul><li><a href="/releases/current-development/">Current Development</a></li><li><a href="/release-checklist/">Release Checklist</a></li></ul></div></nav><main class="content"><h1 id="theme-architecture-and-template-overrides">Theme architecture and template overrides</h1>
+<p>Themes provide frontend templates, layout structures, and assets for site rendering. Each Site in Zoosper is associated with a Theme code (defaulting to <code>default</code>), allowing multi-site installations to share or customize visual presentation while maintaining strong site isolation.</p>
+<h2 id="directory-structure">Directory structure</h2>
+<p>Themes reside under the <code>themes/</code> directory at the project root:</p>
+<pre><code class="language-text">themes/
+├── default/
+│   ├── config/
+│   │   └── theme.php
+│   ├── templates/
+│   │   ├── layout.php (or layout.latte)
+│   │   ├── page.php (or page.latte)
+│   │   ├── partials/
+│   │   │   ├── header.php
+│   │   │   └── footer.php
+│   │   ├── modules/
+│   │   │   └── page/
+│   │   │       └── content.php
+│   │   └── overrides/
+│   └── assets/
+│       ├── css/
+│       └── js/
+└── custom-theme/
+    ├── config/
+    │   └── theme.php
+    └── templates/
+        └── ...</code></pre>
+<h2 id="template-resolution-and-inheritance">Template resolution and inheritance</h2>
+<p>Zoosper resolves templates through a deterministic, path-safe fallback hierarchy implemented by <code>Zoosper\Theme\Template\TemplateRenderer</code>:</p>
+<ol>
+<li><strong>Custom Theme Overrides</strong>: <code>themes/{themeCode}/templates/overrides/{template}</code></li>
+<li><strong>Custom Theme Base</strong>: <code>themes/{themeCode}/templates/{template}</code></li>
+<li><strong>Default Theme Overrides</strong> (if current theme is not <code>default</code>): <code>themes/default/templates/overrides/{template}</code></li>
+<li><strong>Default Theme Base</strong>: <code>themes/default/templates/{template}</code></li>
+</ol>
+<p>When rendering module-namespaced templates (e.g. <code>page::view</code>), the resolution candidate chain inspects:</p>
+<ol>
+<li><code>themes/{themeCode}/templates/modules/{moduleName}/{template}</code></li>
+<li><code>themes/default/templates/modules/{moduleName}/{template}</code></li>
+<li><code>app/{moduleName}/resources/views/{template}</code> (or <code>packages/{moduleName}/resources/views/{template}</code>)</li>
+</ol>
+<p>This fallback system ensures that adopter themes can override specific components or entire page layouts without modifying core modules or copying unmodified templates.</p>
+<h2 id="template-engines">Template engines</h2>
+<p>Zoosper supports pluggable template engines registered through <code>TemplateEngineRegistry</code>:</p>
+<ul>
+<li><strong>Latte Engine (<code>.latte</code>)</strong>: The default engine, providing compile-time template safety, automatic contextual HTML escaping, block macros, and clean syntax.</li>
+<li><strong>PHP Engine (<code>.php</code>)</strong>: Standard PHP template rendering with helper functions.</li>
+</ul>
+<p>The renderer automatically matches file extensions based on available registered engines.</p>
+<h2 id="shared-view-context-and-helpers">Shared view context and helpers</h2>
+<p>Templates have access to global and route-specific view data provided by <code>TemplateViewContextProvider</code>:</p>
+<ul>
+<li><code>$siteContext</code>: Current resolved <code>SiteContext</code> entity.</li>
+<li><code>$site</code>: Active <code>Site</code> instance (name, code, default status).</li>
+<li><code>$siteId</code>: ID of the current site.</li>
+<li><code>$siteName</code>: Escaped name of the site.</li>
+<li><code>$e</code>: Helper callable for explicit HTML escaping (<code>htmlspecialchars</code>).</li>
+<li><code>$partial(string $name, array $data = [])</code>: Helper callable for including theme partials from <code>partials/</code>.</li>
+<li><code>$slot(string $name, array $data = [])</code>: Helper callable for rendering layout update slot injections.</li>
+<li><code>$asset(string $path)</code>: URL generator for static assets.</li>
+</ul>
+<h2 id="layout-updates-and-slot-injections">Layout updates and slot injections</h2>
+<p>Themes and modules can inject markup into named layout slots dynamically using the layout update system (<code>LayoutUpdateRepository</code>):</p>
+<ul>
+<li><strong>Injections</strong>: Modules can register template injections targeting specific layout slots (e.g. <code>header.scripts</code>, <code>footer.scripts</code>, <code>sidebar.bottom</code>).</li>
+<li><strong>Replacements</strong>: Specific template components can be remapped to alternative views per layout handle.</li>
+<li><strong>Removals</strong>: Templates can be conditionally removed without altering theme files.</li>
+</ul>
+<h2 id="best-practices-for-theme-adopters">Best practices for theme adopters</h2>
+<ol>
+<li><strong>Consume prepared view models</strong>: Templates should render data passed by controllers and context providers rather than executing SQL queries or instantiating repositories directly.</li>
+<li><strong>Always escape untrusted output</strong>: Use Latte&#039;s automatic escaping or the <code>$e()</code> helper in PHP templates for any user-authored or database-persisted text.</li>
+<li><strong>Keep assets path-safe</strong>: Store theme-specific assets in <code>themes/{themeCode}/assets/</code> and generate URLs using the <code>$asset()</code> helper or relative asset paths.</li>
+</ol></main></div><footer>Zoosper CMS documentation</footer></body></html>

@@ -1,44 +1,19 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Zoosper CMS documentation"><title>Current development line · Zoosper CMS</title><link rel="icon" href="/assets/favicon.svg"><link rel="stylesheet" href="/assets/site.css"></head><body><header><a class="brand" href="/"><img src="/assets/logo.svg" alt="">Zoosper CMS</a><span>Documentation</span><a href="https://github.com/zoosper/zoosper">GitHub</a></header><div class="shell"><nav class="sidebar" aria-label="Documentation"><div class="nav-section"><strong>Overview</strong><ul><li><a href="/">Overview</a></li></ul></div><div class="nav-section"><strong>Getting started</strong><ul><li><a href="/getting-started/">Getting Started</a></li><li><a href="/deployment/">Deployment</a></li><li><a href="/upgrade/">Upgrade</a></li><li><a href="/troubleshooting/">Troubleshooting</a></li></ul></div><div class="nav-section"><strong>User guide</strong><ul><li><a href="/user-guide/">User Guide</a></li></ul></div><div class="nav-section"><strong>Developer guide</strong><ul><li><a href="/developer-guide/">Developer Guide</a></li><li><a href="/architecture/">Architecture</a></li><li><a href="/modules/">Modules</a></li><li><a href="/configuration/">Configuration</a></li><li><a href="/cli/">Command Line</a></li><li><a href="/api/">API</a></li><li><a href="/admin/">Admin</a></li><li><a href="/themes/">Themes</a></li><li><a href="/testing/">Testing</a></li></ul></div><div class="nav-section"><strong>Project</strong><ul><li><a class="active" aria-current="page" href="/releases/current-development/">Current Development</a></li><li><a href="/release-checklist/">Release Checklist</a></li></ul></div></nav><main class="content"><h1 id="current-development-line">Current development line</h1>
 <h2 id="version">Version</h2>
-<p><code>0.3.0-alpha.5-dev</code></p>
-<h2 id="current-source-status">Current source status</h2>
+<p><code>0.3.1-alpha.1-dev</code></p>
+<h2 id="release-baseline">Release baseline</h2>
 <ul>
-<li><code>0.3.0-alpha.5-dev</code> is the current development identity. The immutable latest tagged pre-release remains <code>v0.3.0-alpha.4</code>, preserving the published API, security, package-ownership, module-discovery caching, CSP enforcement, unified AdminFormRenderer, asynchronous media derivative offloading, database-backed Module Lifecycle kernel, first-party package extractions, PHP 8.5 compatibility, and pre-launch security hardening baseline.</li>
-<li>Media list, detail, derivative, canonical upload, archive, restore, and guarded permanent-delete APIs are complete in the release line.</li>
-<li>Module-discovery collision handling has been reconciled against current source and remains fail closed.</li>
-<li>The responsive Admin refinement is complete in source at <code>364414a4878cde36fd89de8583326e4d1ff1f625</code>: permission-aware Dashboard links, fluid light/dark presentation, package-owned responsive Grid workflows, a sidebar-owned collapse control, module-owned semantic destination identifiers, and text-only non-interactive navigation groups.</li>
-<li>Final accepted verification for <code>v0.3.0-alpha.4</code> was <code>1,619</code> tests with <code>11,635</code> assertions; the strict quality gate passed with <code>0</code> errors and <code>0</code> warnings.</li>
-<li>The <code>v0.3.0-alpha.4</code> release tag was committed, tagged, and pushed. It was not deployed as part of that phase.</li>
+<li>Latest immutable release: <code>v0.3.0-alpha.5</code>.</li>
+<li>Release commit: <code>2ffd78032895c79bb148bd1df11c4c5f53e0d704</code>.</li>
+<li>Active branch: <code>dev</code>.</li>
+<li>Zoosper remains public alpha software. No stable release has shipped.</li>
 </ul>
-<h2 id="release-closure-and-next-engineering-phase">Release closure and next engineering phase</h2>
-<p>Phase 10AR and subsequent alpha milestones are complete. Deployment-provided process/container values are authoritative over <code>.env</code>; staging and production retain fail-closed session and rate-limit policy across HTTP and console boot. Release verification passed <code>1,619</code> tests / <code>11,635</code> assertions and the strict quality gate with <code>0</code> errors and <code>0</code> warnings. Browser acceptance and production-safe console boot passed. The release-identity commit and immutable annotated <code>v0.3.0-alpha.4</code> tag are complete at <code>c70f37dc</code>; no GitHub release publication or deployment has occurred.</p>
-<p>Milestones delivered in <code>v0.3.0-alpha.4</code>:</p>
+<h2 id="development-direction">Development direction</h2>
+<p>The 0.3.1 line is a deliberate minor public-alpha progression after the substantial 0.3.0 alpha series. Continue product-facing CMS capability, extension ergonomics, API parity, documentation, and release hardening while preserving the verified alpha.5 security, ownership, data-integrity, and presentation boundaries.</p>
+<h2 id="release-discipline">Release discipline</h2>
 <ul>
-<li><strong>Phase 10AU:</strong> Aggregated discovery map cached in <code>var/cache/modules.php</code> for production boot optimization.</li>
-<li><strong>Phase 10AV:</strong> Content Security Policy (CSP) enforcement (<code>report_only =&gt; false</code>).</li>
-<li><strong>Phases 10AW / 10AX:</strong> Unified <code>AdminFormRenderer</code> with Danger Zone deletion, sections, and Editor.js support across User, Role, Site, and Page controllers.</li>
-<li><strong>Phase 10AY:</strong> Asynchronous media derivative offload with <code>media_processing_queue</code>, <code>QueuedMediaProcessor</code>, <code>media:process-queue</code> worker, and GD pre-decode resource limits.</li>
-<li><strong>Phase 10AZ:</strong> Database-backed Module Lifecycle kernel with <code>module:install</code>, <code>module:uninstall</code>, <code>module:enable</code>, and <code>module:disable</code> commands.</li>
-<li><strong>First-party module extractions:</strong> Dynamic Dashboard widgets (<code>zoosper/admin-dashboard</code>), Decoupled Content Editor (<code>zoosper/editor</code>), and Global Announcements (<code>zoosper/global-announcements</code>).</li>
-<li><strong>Pre-launch audit remediation pass (2026-09-01):</strong> Fail-closed HTML sanitization (CRIT-01), 2FA encryption key placeholder rejection and rotation (CRIT-02), <code>APP_DEBUG=false</code> production enforcement (CRIT-03), database driver production policy (HIGH-01), CI MySQL execution (HIGH-02), asset path traversal rejection, and canonical <code>env()</code> helper consolidation (HIGH-05/LOW-04).</li>
-</ul>
-<p>Current engineering priorities from the 2026-09-01 re-audit and technical code review for <code>0.3.0-alpha.5-dev</code>:</p>
-<ul>
-<li>Continue the next integrity review as new modules and relationships are introduced; the current first-party inventory is closed with 33 declarative constraints, zero pending additions, zero mismatches, fresh SQLite parity, and release-check enforcement.</li>
-<li>Static analysis (Psalm) baseline burn-down toward an enforced zero-baseline gate.</li>
-<li>Automated secret generation command and mandatory boot validation under staging and production environments.</li>
-<li>Absolute session lifetime (<code>ADMIN_SESSION_ABSOLUTE_LIFETIME</code>) and concurrent session management.</li>
-<li>Unauthenticated module asset pipeline adversarial security tests.</li>
-</ul>
-<p>Keep documentation, package READMEs, upgrade notes, and architecture decisions current in every phase.</p>
-<h2 id="phase-11a-referential-integrity-closure">Phase 11A referential-integrity closure</h2>
-<p>Phase 11A is complete on the <code>0.3.0-alpha.5-dev</code> line:</p>
-<ul>
-<li>Existing migration-owned relationships were reconciled into module manifests without duplicate DDL.</li>
-<li>Ten audited missing relationships and two indexed creator relationships were applied to MySQL.</li>
-<li>The active database reports <code>present=33</code>, <code>add=0</code>, <code>mismatch=0</code>, and <code>sqlite_rebuild_required=0</code>.</li>
-<li>Fresh SQLite installation creates all 33 declarative foreign keys and passes <code>PRAGMA foreign_key_check</code> with no violations.</li>
-<li>Behavioural tests cover orphan rejection, <code>CASCADE</code>, <code>SET NULL</code>, and restrictive parent-key updates.</li>
-<li><code>release:check</code> now fails closed when additions, mismatches, SQLite rebuild requirements, or inspection failures remain.</li>
-<li>The separate current release blocker is <code>module-manifest: status=missing</code>; compile the manifest before a release-readiness run.</li>
+<li>Keep runtime identity, API health output, Admin presentation, changelog, roadmap, and public documentation aligned.</li>
+<li>Keep architecture documentation and each package README current with every phase.</li>
+<li>Preserve clean worktrees, bounded diffs, full tests, strict quality checks, Composer validation, dependency audit, manifest freshness, foreign-key reconciliation, and runtime smoke evidence before each release.</li>
+<li>Do not modify or retarget the immutable <code>v0.3.0-alpha.5</code> tag.</li>
 </ul></main></div><footer>Zoosper CMS documentation</footer></body></html>

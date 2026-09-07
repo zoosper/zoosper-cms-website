@@ -1,19 +1,21 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Zoosper CMS documentation"><title>Current development line · Zoosper CMS</title><link rel="icon" href="/assets/favicon.svg"><link rel="stylesheet" href="/assets/site.css"></head><body><header><a class="brand" href="/"><img src="/assets/logo.svg" alt="">Zoosper CMS</a><span>Documentation</span><a href="https://github.com/zoosper/zoosper">GitHub</a></header><div class="shell"><nav class="sidebar" aria-label="Documentation"><div class="nav-section"><strong>Overview</strong><ul><li><a href="/">Overview</a></li></ul></div><div class="nav-section"><strong>Getting started</strong><ul><li><a href="/getting-started/">Getting Started</a></li><li><a href="/deployment/">Deployment</a></li><li><a href="/upgrade/">Upgrade</a></li><li><a href="/troubleshooting/">Troubleshooting</a></li></ul></div><div class="nav-section"><strong>User guide</strong><ul><li><a href="/user-guide/">User Guide</a></li></ul></div><div class="nav-section"><strong>Developer guide</strong><ul><li><a href="/developer-guide/">Developer Guide</a></li><li><a href="/architecture/">Architecture</a></li><li><a href="/modules/">Modules</a></li><li><a href="/configuration/">Configuration</a></li><li><a href="/cli/">Command Line</a></li><li><a href="/api/">API</a></li><li><a href="/admin/">Admin</a></li><li><a href="/themes/">Themes</a></li><li><a href="/testing/">Testing</a></li></ul></div><div class="nav-section"><strong>Project</strong><ul><li><a class="active" aria-current="page" href="/releases/current-development/">Current Development</a></li><li><a href="/release-checklist/">Release Checklist</a></li></ul></div></nav><main class="content"><h1 id="current-development-line">Current development line</h1>
 <h2 id="version">Version</h2>
-<p><code>0.3.1-alpha.1-dev</code></p>
+<p><code>0.3.2-alpha.1-dev</code></p>
 <h2 id="release-baseline">Release baseline</h2>
 <ul>
-<li>Latest immutable release: <code>v0.3.0-alpha.5</code>.</li>
-<li>Release commit: <code>2ffd78032895c79bb148bd1df11c4c5f53e0d704</code>.</li>
+<li>Latest immutable release: <code>v0.3.1-alpha.1</code>.</li>
+<li>Release commit: <code>bfde15051396cd1dd19bdfaaa7b560e9c29e8287</code>.</li>
 <li>Active branch: <code>dev</code>.</li>
 <li>Zoosper remains public alpha software. No stable release has shipped.</li>
 </ul>
 <h2 id="development-direction">Development direction</h2>
-<p>The 0.3.1 line is a deliberate minor public-alpha progression after the substantial 0.3.0 alpha series. Continue product-facing CMS capability, extension ergonomics, API parity, documentation, and release hardening while preserving the verified alpha.5 security, ownership, data-integrity, and presentation boundaries.</p>
+<p>The 0.3.2 line is the beta-readiness public-alpha progression after the substantial 0.3.0 alpha series. Continue product-facing CMS capability, extension ergonomics, API parity, documentation, and release hardening while preserving the verified alpha.5 security, ownership, data-integrity, and presentation boundaries.</p>
 <h2 id="release-discipline">Release discipline</h2>
 <ul>
 <li>Keep runtime identity, API health output, Admin presentation, changelog, roadmap, and public documentation aligned.</li>
 <li>Keep architecture documentation and each package README current with every phase.</li>
 <li>Preserve clean worktrees, bounded diffs, full tests, strict quality checks, Composer validation, dependency audit, manifest freshness, foreign-key reconciliation, and runtime smoke evidence before each release.</li>
-<li>Do not modify or retarget the immutable <code>v0.3.0-alpha.5</code> tag.</li>
-</ul></main></div><footer>Zoosper CMS documentation</footer></body></html>
+<li>Do not modify or retarget the immutable <code>v0.3.1-alpha.1</code> tag.</li>
+</ul>
+<h2 id="beta-readiness-composer-policy">Beta-readiness Composer policy</h2>
+<p>The 0.3.2 alpha development line removes first-party <code>dev-dev</code> dependency coupling. All 32 first-party path packages receive the explicit <code>0.3.2-alpha.1</code> Composer package candidate from the root repository map and consume compatible first-party packages through <code>^0.3.1@alpha</code>. This keeps runtime identity at <code>0.3.2-alpha.1-dev</code> while making package compatibility independent of the Git development branch.</p></main></div><footer>Zoosper CMS documentation</footer></body></html>

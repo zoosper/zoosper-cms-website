@@ -9,4 +9,10 @@
 <li><strong>Cache &amp; Storage</strong>: <code>config/cache.php</code> and <code>config/page_cache.php</code> govern cache drivers (<code>file</code>, <code>redis</code>) and full-page caching.</li>
 </ul>
 <p><code>config/version.php</code> is the central default CMS version source. <code>CMS_VERSION</code> is an optional deployment override.</p>
-<p>Never commit <code>.env</code>, credentials, encryption keys or production connection strings.</p></main></div><footer>Zoosper CMS documentation</footer></body></html>
+<p>Never commit <code>.env</code>, credentials, encryption keys or production connection strings.</p>
+<h2 id="admin-account-lockout">Admin account lockout</h2>
+<pre><code class="language-dotenv">ADMIN_ACCOUNT_LOCKOUT_MAX_ATTEMPTS=5
+ADMIN_ACCOUNT_LOCKOUT_SECONDS=900</code></pre>
+<p>These variables configure temporary per-account lockout for known active Admin users. The first value is the failed-password threshold and the second is the lock duration in seconds. The shipped example uses five attempts and 900 seconds.</p>
+<p>Account lockout and request rate limiting are separate controls. Account lockout persists failure state for a known active Admin identity. The Admin login rate limiter protects request volume using its configured email/IP identity. Either control may reject a request independently.</p>
+<p>Temporary lockout does not change the Admin user&#039;s active/inactive status. Public login output remains neutral and does not reveal lockout state or expiry.</p></main></div><footer>Zoosper CMS documentation</footer></body></html>

@@ -14,4 +14,20 @@
 <p>Start the local development server with <code>composer serve</code>; its router forwards non-file requests such as <code>/admin/login</code> to the front controller.</p>
 <p>For a disposable verification installation, run <code>composer fresh-install:smoke</code>. This command uses a temporary SQLite database and does not modify the configured project database.</p>
 <h2 id="starter-content">Starter content</h2>
-<p>After migrations and Site setup, run <code>php bin/zoosper starter:install</code>. The command creates only a missing Site and missing published Home/About Pages. Existing records are retained, so rerunning it is safe.</p></main></div><footer>Zoosper CMS documentation</footer></body></html>
+<p>After migrations and Site setup, run <code>php bin/zoosper starter:install</code>. The command creates only a missing Site and missing published Home/About Pages. Existing records are retained, so rerunning it is safe.</p>
+<h2 id="admin-password-reset-configuration">Admin password-reset configuration</h2>
+<p>Before using Admin password reset outside local development:</p>
+<ol>
+<li>Set <code>APP_URL</code> to the trusted absolute HTTP or HTTPS application origin. The value must not contain credentials, a query, or a fragment. Reset links combine this origin with the configured Admin base path.</li>
+<li>Configure working SMTP delivery with <code>MAIL_FROM_ADDRESS</code>, <code>MAIL_FROM_NAME</code>, <code>SMTP_HOST</code>, <code>SMTP_PORT</code>, and any required SMTP authentication or encryption values.</li>
+<li>Configure a strong stable <code>RATE_LIMIT_IDENTITY_SALT</code> and enable authentication rate limiting. Staging and production already require <code>RATE_LIMIT_ENABLED=true</code> and <code>RATE_LIMIT_MODE=enforce</code> at boot.</li>
+<li>Tune <code>RATE_LIMIT_ADMIN_PASSWORD_RESET_MAX_ATTEMPTS</code> and <code>RATE_LIMIT_ADMIN_PASSWORD_RESET_WINDOW_SECONDS</code>. Defaults are 5 attempts in 900 seconds, bounded by the shared rate-limit configuration.</li>
+<li>Run <code>php8.5 bin/zoosper migrate</code> so <code>admin_password_reset_tokens</code> exists, then run the normal compile and release checks.</li>
+</ol>
+<p>The public flow is available from the <strong>Forgot password?</strong> link on the Admin sign-in page. Reset messages intentionally bypass Email Logs because the URL contains the single-use credential.</p>
+<h2 id="configure-admin-account-lockout">Configure Admin account lockout</h2>
+<p>Copy the shipped lockout settings into the deployment environment and adjust them to the organisation&#039;s security policy:</p>
+<pre><code class="language-dotenv">ADMIN_ACCOUNT_LOCKOUT_MAX_ATTEMPTS=5
+ADMIN_ACCOUNT_LOCKOUT_SECONDS=900</code></pre>
+<p>Run migrations before enabling Admin authentication so the Auth-owned <code>admin_account_lockouts</code> table exists. A known active account is temporarily locked after the configured number of failed passwords. The public login page continues to show only <code>Invalid email or password.</code></p>
+<p>An authorised operator with <code>user.manage</code> can open the affected Admin User edit page and use <strong>Unlock account</strong>. The action is POST-only and CSRF-protected. A successful password reset also clears the lock. Neither recovery path activates an inactive account or changes its roles, password-independent security state, or two-factor configuration.</p></main></div><footer>Zoosper CMS documentation</footer></body></html>

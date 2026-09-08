@@ -16,6 +16,7 @@
 <li>Live frontend, API health and Admin login checks</li>
 <li>Authenticated Admin smoke journey</li>
 <li>Database and Media rollback points</li>
+<li>Globally unique migration basenames and disposable release-upgrade rehearsal</li>
 <li>Annotated immutable release tag</li>
 </ul>
 <h2 id="starter-experience">Starter experience</h2>
@@ -25,8 +26,8 @@
 <li>Verify the application-owned session path and starter-theme files pass <code>release:check</code>.</li>
 </ul>
 <h2 id="reusable-final-tag-gate">Reusable final tag gate</h2>
-<pre><code class="language-bash">RELEASE_TAG=v0.3.1-alpha.1
-NEXT_VERSION=0.3.1-alpha.2-dev</code></pre>
+<pre><code class="language-bash">RELEASE_TAG=&lt;candidate-tag&gt;
+NEXT_VERSION=&lt;next-development-version&gt;</code></pre>
 <ul>
 <li>Confirm <code>php8.5 bin/zoosper version</code> reports the release version represented by <code>RELEASE_TAG</code>.</li>
 <li>Confirm Admin and API health expose the same authoritative version.</li>

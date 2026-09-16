@@ -21,4 +21,17 @@
 <h3 id="security-closure-boundaries">Security closure boundaries</h3>
 <p>Recognised environments are local, development, testing, staging and production; empty or unknown values fail boot. Staging and production require secure sessions and enforced salted rate limiting in both HTTP and console service composition. Logger redaction covers credential-bearing keys and Zoosper PAT-shaped values. PAT issue and revocation require audit infrastructure. Successful PAT use updates last-used metadata at most once per five-minute database interval. Session <code>/api/v1/me</code> is read-only; bearer <code>/api/v1/token/me</code> remains the stateless integration identity endpoint.</p>
 <h3 id="template-identifier-security-boundary">Template identifier security boundary</h3>
-<p>Template identifiers are validated before theme overrides, module view lookup, extension-driven engine selection, or legacy PHP template execution. Identifiers must be normalised relative forward-slash paths. Absolute paths, traversal segments, null bytes, backslashes, duplicate separators, malformed module names, and unsupported segment characters fail closed.</p></main></div><footer>Zoosper CMS documentation</footer></body></html>
+<p>Template identifiers are validated before theme overrides, module view lookup, extension-driven engine selection, or legacy PHP template execution. Identifiers must be normalised relative forward-slash paths. Absolute paths, traversal segments, null bytes, backslashes, duplicate separators, malformed module names, and unsupported segment characters fail closed.</p>
+<h2 id="authentication-rate-limit-execution-boundary">Authentication rate-limit execution boundary</h2>
+<p>Authentication rate limiting uses one Auth-owned execution service across HTML Admin login, API login, password-reset requests and two-factor challenges.</p>
+<p><code>AdminAuthenticationRateLimiter</code> owns:</p>
+<ul>
+<li>runtime policy loading</li>
+<li>salted and normalised identity construction</li>
+<li>database attempt recording</li>
+<li>report-only JSONL diagnostic events</li>
+<li>enforcing allow or deny decisions</li>
+<li>successful login and two-factor bucket resets</li>
+</ul>
+<p>HTTP layers remain transport adapters. The Admin middleware performs route selection and generic HTML 429 mapping. API and two-factor controllers preserve their own response formats. Password-reset requests preserve their neutral public response. No HTTP adapter recreates the policy, hashing, persistence or reporting stack.</p>
+<p>Disabled mode remains lazy and does not require a salt or create storage. Report-only mode records the underlying decision but returns an allowed decision to the caller. Enforcing mode returns the stored decision unchanged.</p></main></div><footer>Zoosper CMS documentation</footer></body></html>

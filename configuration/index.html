@@ -6,7 +6,7 @@
 <li><strong>Secrets &amp; Encryption</strong>: <code>APP_KEY</code>, <code>TWO_FACTOR_ENCRYPTION_KEY</code>, <code>RATE_LIMIT_IDENTITY_SALT</code>, and <code>CACHE_ENCRYPTION_KEY</code> can be generated and audited using <code>php bin/zoosper security:generate-secrets</code>.</li>
 <li><strong>Admin &amp; Session Lifecycle</strong>: <code>config/admin.php</code> controls administrative base path, password complexity, <code>ADMIN_SESSION_IDLE_TIMEOUT</code> (idle inactivity timeout in seconds), and <code>ADMIN_SESSION_ABSOLUTE_LIFETIME</code> (maximum total session duration in seconds).</li>
 <li><strong>Database &amp; Persistence</strong>: <code>config/database.php</code> configures PDO connections (<code>sqlite</code>, <code>mysql</code>). In staging and production, strict database driver policies are enforced.</li>
-<li><strong>Cache &amp; Storage</strong>: <code>config/cache.php</code> and <code>config/page_cache.php</code> govern cache drivers (<code>file</code>, <code>redis</code>) and full-page caching.</li>
+<li><strong>Cache &amp; Storage</strong>: <code>config/cache.php</code> and <code>config/page_cache.php</code> govern cache drivers (<code>file</code>, <code>redis</code>) and full-page caching. Redis requires a strong dedicated <code>CACHE_ENCRYPTION_KEY</code>; staging and production additionally require authenticated Redis through <code>CACHE_REDIS_PASSWORD</code>. These Redis requirements do not apply when the file driver is selected.</li>
 </ul>
 <p><code>config/version.php</code> is the central default CMS version source. <code>CMS_VERSION</code> is an optional deployment override.</p>
 <p>Never commit <code>.env</code>, credentials, encryption keys or production connection strings.</p>

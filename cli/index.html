@@ -8,7 +8,7 @@
 <li><code>module:manifest:status</code>: Display discovery vs compiled manifest status.</li>
 <li><code>module:manifest:check</code>: Validate compiled manifest against current module definitions.</li>
 <li><code>deploy</code>: Execute atomic deployment pipeline (migrate, compile, manifest verify).</li>
-<li><code>security:generate-secrets</code>: Generate or audit cryptographically strong secrets (<code>APP_KEY</code>, <code>TWO_FACTOR_ENCRYPTION_KEY</code>, <code>RATE_LIMIT_IDENTITY_SALT</code>, <code>CACHE_ENCRYPTION_KEY</code>) with optional <code>--write</code>, <code>--check</code>, or <code>--force</code> flags.</li>
+<li><code>security:generate-secrets</code>: Generate or audit cryptographically strong secrets (<code>APP_KEY</code>, <code>TWO_FACTOR_ENCRYPTION_KEY</code>, <code>RATE_LIMIT_IDENTITY_SALT</code>, <code>CACHE_ENCRYPTION_KEY</code>) with optional <code>--write</code>, <code>--check</code>, or <code>--force</code> flags. The command uses the same assignment grammar as bootstrap, accepts quoted values, inline comments and <code>export</code> prefixes, rejects duplicate targeted keys before mutation, preserves unrelated lines and line endings, and performs checked atomic <code>0600</code> writes. Output-only generation prints live secrets with an explicit exposure warning; prefer <code>--write</code> for secret-safe operational logs.</li>
 <li><code>release:check</code>: Run pre-flight release readiness verification.</li>
 <li><code>schema:foreign-keys:status</code> / <code>schema:foreign-keys:apply</code>: Inspect and apply declarative foreign key constraints.</li>
 <li><code>version</code>: Display CMS release version and channel.</li>

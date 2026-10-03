@@ -44,4 +44,8 @@ NEXT_VERSION=&lt;next-development-version&gt;</code></pre>
 <li>Do not retry a failed MySQL apply blindly; inspect status because earlier DDL statements may already have succeeded.</li>
 <li>For SQLite, use explicit data-preserving rebuild migrations for existing-table foreign-key changes.</li>
 <li>Before release, compile the module manifest so the independent <code>module-manifest</code> readiness check is fresh.</li>
+</ul>
+<h2 id="production-platform-verification">Production platform verification</h2>
+<ul>
+<li>Run <code>composer check-platform-reqs --no-dev</code> and confirm the production PHP runtime provides cURL, GD, mbstring, PDO and PDO MySQL.</li>
 </ul></main></div><footer>Zoosper CMS documentation</footer></body></html>

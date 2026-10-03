@@ -1,0 +1,79 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Zoosper CMS documentation"><title>Production operator runbook · Zoosper CMS</title><link rel="icon" href="/assets/favicon.svg"><link rel="stylesheet" href="/assets/site.css"></head><body><header><a class="brand" href="/"><img src="/assets/logo.svg" alt="">Zoosper CMS</a><span>Documentation</span><a href="https://github.com/zoosper/zoosper">GitHub</a></header><div class="shell"><nav class="sidebar" aria-label="Documentation"><div class="nav-section"><strong>Overview</strong><ul><li><a href="/">Overview</a></li></ul></div><div class="nav-section"><strong>Getting started</strong><ul><li><a href="/getting-started/">Getting Started</a></li><li><a href="/deployment/">Deployment</a></li><li><a class="active" aria-current="page" href="/operations/production-operator-runbook/">operations/production-operator-runbook</a></li><li><a href="/upgrade/">Upgrade</a></li><li><a href="/troubleshooting/">Troubleshooting</a></li></ul></div><div class="nav-section"><strong>User guide</strong><ul><li><a href="/user-guide/">User Guide</a></li></ul></div><div class="nav-section"><strong>Developer guide</strong><ul><li><a href="/developer-guide/">Developer Guide</a></li><li><a href="/architecture/">Architecture</a></li><li><a href="/modules/">Modules</a></li><li><a href="/configuration/">Configuration</a></li><li><a href="/cli/">Command Line</a></li><li><a href="/api/">API</a></li><li><a href="/admin/">Admin</a></li><li><a href="/themes/">Themes</a></li><li><a href="/testing/">Testing</a></li></ul></div><div class="nav-section"><strong>Project</strong><ul><li><a href="/releases/current-development/">Current Development</a></li><li><a href="/release-checklist/">Release Checklist</a></li></ul></div></nav><main class="content"><h1 id="production-operator-runbook">Production operator runbook</h1>
+<p>This runbook is the canonical pre-deployment and post-deployment checklist for a Zoosper staging or production installation. Run commands from the project root with PHP 8.5. Never paste secrets into logs, tickets, shell history, or public issue trackers.</p>
+<h2 id="1-obtain-and-verify-the-release">1. Obtain and verify the release</h2>
+<p>Deploy a clean tracked checkout or a verified production artifact. Install the committed lock file and verify the real production platform:</p>
+<pre><code class="language-bash">php8.5 &quot;$(command -v composer)&quot; install --no-dev --no-interaction --prefer-dist --optimize-autoloader --classmap-authoritative
+php8.5 &quot;$(command -v composer)&quot; validate --strict
+php8.5 &quot;$(command -v composer)&quot; check-platform-reqs --no-dev
+php8.5 &quot;$(command -v composer)&quot; audit --locked --no-interaction</code></pre>
+<p>The web-server document root must be the project <code>public/</code> directory. Do not expose the repository root, <code>app/</code>, <code>packages/</code>, <code>config/</code>, <code>storage/</code>, <code>var/</code>, <code>.env</code>, Composer metadata, or Git files. Uploaded originals remain outside <code>public/</code>; only validated Media copies belong under <code>public/media/</code>.</p>
+<h2 id="2-configure-the-public-origin-and-reverse-proxies">2. Configure the public origin and reverse proxies</h2>
+<p>Set <code>APP_URL</code> to the canonical absolute HTTPS origin. It must not contain credentials, query data, or a fragment. Password-reset links are built from this configured origin and must never be derived from an untrusted Host header.</p>
+<p>Set <code>TRUSTED_PROXIES</code> only when Zoosper is behind known reverse proxies or load balancers. Use a comma-separated list of the immediate proxy IPv4/IPv6 addresses or CIDR ranges. Do not trust broad networks merely to make forwarded headers work. Invalid entries fail boot. Verify that direct requests cannot spoof <code>X-Forwarded-Proto</code> or the client address, and that HTTPS requests behind a trusted proxy produce Secure session cookies and HSTS.</p>
+<p>Required public-environment controls include:</p>
+<pre><code class="language-dotenv">APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://cms.example.com
+SESSION_SECURE=true
+RATE_LIMIT_ENABLED=true
+RATE_LIMIT_MODE=enforce
+DATABASE_ENFORCE_MYSQL_PRODUCTION=true
+DB_CONNECTION=mysql</code></pre>
+<p>Process-manager or container environment values take precedence over <code>.env</code>.</p>
+<h2 id="3-generate-and-audit-secrets">3. Generate and audit secrets</h2>
+<p>Create <code>.env</code> from the shipped example, restrict it to the deployment account, and use the repository-owned command:</p>
+<pre><code class="language-bash">cp .env.example .env
+chmod 600 .env
+php8.5 bin/zoosper security:generate-secrets --write
+php8.5 bin/zoosper security:generate-secrets --check</code></pre>
+<p>The command manages <code>APP_KEY</code>, <code>TWO_FACTOR_ENCRYPTION_KEY</code>, <code>RATE_LIMIT_IDENTITY_SALT</code>, and <code>CACHE_ENCRYPTION_KEY</code>, writes through a checked same-directory temporary file, verifies mode <code>0600</code>, and does not print secret values in audit mode. Keep each secret single-purpose. Before rotating the 2FA key, place the retired key in <code>TWO_FACTOR_PREVIOUS_ENCRYPTION_KEYS</code>; remove old keys only after enrolled administrators have successfully signed in and their secrets have been re-encrypted.</p>
+<h2 id="4-configure-mysql-or-mariadb">4. Configure MySQL or MariaDB</h2>
+<p>Use a dedicated least-privilege application account and the deployment-owned <code>DB_HOST</code>, <code>DB_PORT</code>, <code>DB_DATABASE</code>, <code>DB_USERNAME</code>, and <code>DB_PASSWORD</code>. Record a database backup and uploaded-Media rollback point before changing code or schema.</p>
+<p>Inspect and apply in this order:</p>
+<pre><code class="language-bash">php8.5 bin/zoosper migrate
+php8.5 bin/zoosper schema:foreign-keys:status --format=json
+php8.5 bin/zoosper schema:foreign-keys:apply --confirm=apply
+php8.5 bin/zoosper schema:foreign-keys:status --format=json</code></pre>
+<p>Require <code>add=0</code>, <code>mismatch=0</code>, and <code>sqlite_rebuild_required=0</code> after reconciliation. Review every proposed statement before applying it. MySQL DDL can partially succeed, so inspect status after any failure instead of blindly retrying. The ordinary <code>migrate</code> command has no dry-run mode. Rehearse release upgrades against a disposable database using the repository-owned release-upgrade tools before touching production.</p>
+<h2 id="5-configure-cache-safely">5. Configure cache safely</h2>
+<p>The file cache is the default and does not require Redis credentials. When selecting Redis:</p>
+<pre><code class="language-dotenv">CACHE_DRIVER=redis
+CACHE_REDIS_HOST=127.0.0.1
+CACHE_REDIS_PORT=6379
+CACHE_REDIS_PASSWORD=&lt;deployment-secret&gt;
+CACHE_REDIS_DATABASE=0
+CACHE_REDIS_PREFIX=zoosper:cache:
+CACHE_ENCRYPTION_KEY=&lt;dedicated-strong-secret&gt;</code></pre>
+<p>Staging and production reject unauthenticated Redis and weak or placeholder cache signing keys. The current Redis boundary supports password authentication and does not expose a separate ACL username. Restrict network access to the application hosts, use a dedicated logical database and prefix, and never reuse the Redis password as the cache signing key.</p>
+<h2 id="6-configure-smtp-and-password-reset-links">6. Configure SMTP and password-reset links</h2>
+<p>Configure <code>MAIL_FROM_ADDRESS</code>, <code>MAIL_FROM_NAME</code>, <code>SMTP_HOST</code>, <code>SMTP_PORT</code>, and any required <code>SMTP_USERNAME</code>, <code>SMTP_PASSWORD</code>, and <code>SMTP_ENCRYPTION</code>. Use the configured timeout deliberately. Confirm SMTP reachability from the application host and send a controlled password-reset message to a test administrator. Reset messages bypass Email Logs because their URLs contain single-use credentials; do not copy reset URLs into diagnostics or tickets.</p>
+<p>Confirm the delivered reset URL uses the exact <code>APP_URL</code> origin and configured Admin base path.</p>
+<h2 id="7-validate-csp-and-the-admin-experience">7. Validate CSP and the Admin experience</h2>
+<p>Production uses enforcing CSP:</p>
+<pre><code class="language-dotenv">SECURITY_CSP_ENABLED=true
+SECURITY_CSP_REPORT_ONLY=false
+SECURITY_CSP_REPORT_URI=</code></pre>
+<p>If a reporting endpoint is configured, ensure it is trusted and monitored. Validate the emitted response header is <code>Content-Security-Policy</code>, not <code>Content-Security-Policy-Report-Only</code>. Exercise login, TOTP, password reset, Dashboard, Settings, Users, Roles, Pages, Menus, Media, Grid filters, saved views, exports, and destructive confirmation flows. Treat blocked scripts, styles, images, fonts, or connections as deployment failures. Do not weaken the policy globally; document and test only the narrow source needed by a real feature.</p>
+<h2 id="8-compile-and-run-release-checks">8. Compile and run release checks</h2>
+<pre><code class="language-bash">php8.5 bin/zoosper compile
+php8.5 bin/zoosper module:manifest:check
+php8.5 bin/zoosper release:check</code></pre>
+<p>Require the compiled manifest to be fresh and every release check to pass. Ensure <code>var/cache</code>, <code>var/log</code>, the application-owned session directory, HTML Purifier cache, private Media storage, and controlled public Media directory have the minimum required ownership and permissions.</p>
+<h2 id="9-schedule-maintenance-and-workers">9. Schedule maintenance and workers</h2>
+<p>Schedule <code>php8.5 bin/zoosper rate-limit:prune</code> with overlap protection. If queued Media processing is enabled, run <code>php8.5 bin/zoosper media:process-queue</code> under a supervised worker and monitor failures. See the rate-limit pruning runbook for scheduler examples.</p>
+<h2 id="10-security-disclosure-and-dependency-monitoring">10. Security disclosure and dependency monitoring</h2>
+<p>Monitor the private mailbox in <code>SECURITY.md</code> and follow its acknowledgement and coordinated-disclosure process. Do not ask reporters to open public issues or include live credentials, tokens, TOTP codes, recovery codes, or payment data.</p>
+<p>Run <code>composer audit --locked --no-interaction</code> in CI and before releases. Repository owners must separately enable and monitor dependency alerts, code scanning, secret scanning, and branch protection in the repository hosting settings. Treat new advisories or leaked-secret alerts as operational incidents, rotate affected credentials, and record only secret-free evidence.</p>
+<h2 id="11-post-deployment-smoke-checks">11. Post-deployment smoke checks</h2>
+<p>Verify:</p>
+<ul>
+<li>HTTPS redirect and canonical <code>APP_URL</code> behavior.</li>
+<li>Secure session cookie attributes and Admin login/logout.</li>
+<li>TOTP and recovery-code authentication.</li>
+<li>Password-reset delivery and single-use completion.</li>
+<li>API health and authenticated API access.</li>
+<li>Home, About, Page rendering, Menus, Media delivery, and Admin Grid workflows.</li>
+<li>Application and exception logs contain no secrets.</li>
+<li><code>module:manifest:check</code>, <code>schema:foreign-keys:status --format=json</code>, and <code>release:check</code> remain green.</li>
+</ul>
+<p>Keep the previous code, database backup, and uploaded-Media rollback point until the deployment is accepted.</p></main></div><footer>Zoosper CMS documentation</footer></body></html>

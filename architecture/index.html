@@ -14,7 +14,7 @@
 <h2 id="security">Security</h2>
 <p>Authentication, CSRF, route permissions, two-factor authentication, security headers, sanitisation, rate-limiting seams and audit logging are explicit runtime boundaries.</p>
 <h2 id="logging-boundary">Logging boundary</h2>
-<p>Logging is owned by the standalone <code>zoosper/logger</code> package. Core and feature consumers use the native Zoosper logger boundary, while the package delegates physical writes to Marko <code>FileLogger</code> with <code>DailyRotation</code>. Module <code>config/logging.php</code> contributions remain discoverable and retain their logical channel and legacy filename identities. Root Composer owns <code>zoosper/logger</code>; the package owns <code>marko/log</code> and <code>marko/log-file</code>.</p>
+<p>Logging is owned by the standalone <code>zoosper/logger</code> package. Core and feature consumers use the native Zoosper logger boundary, while the package delegates physical writes to Marko <code>FileLogger</code> with <code>DailyRotation</code>. Marko 0.11 rotation receives a PSR-20 clock inside the Zoosper logger boundary. Module <code>config/logging.php</code> contributions remain discoverable and retain their logical channel and legacy filename identities. Root Composer owns <code>zoosper/logger</code>; the package owns <code>marko/log</code> and <code>marko/log-file</code>.</p>
 <h3 id="feature-lifecycle-apis">Feature lifecycle APIs</h3>
 <p>Feature modules own lifecycle routes and response mapping. Page archive, restore and guarded permanent deletion use Page-owned application/domain boundaries; Auth owns only PAT identity and scope validation.</p>
 <h3 id="editor-controlled-style-smuggling-boundary">Editor-controlled style-smuggling boundary</h3>

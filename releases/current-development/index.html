@@ -1,21 +1,22 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Zoosper CMS documentation"><title>Current development line · Zoosper CMS</title><link rel="icon" href="/assets/favicon.svg"><link rel="stylesheet" href="/assets/site.css"></head><body><header><a class="brand" href="/"><img src="/assets/logo.svg" alt="">Zoosper CMS</a><span>Documentation</span><a href="https://github.com/zoosper/zoosper">GitHub</a></header><div class="shell"><nav class="sidebar" aria-label="Documentation"><div class="nav-section"><strong>Overview</strong><ul><li><a href="/">Overview</a></li></ul></div><div class="nav-section"><strong>Getting started</strong><ul><li><a href="/getting-started/">Getting Started</a></li><li><a href="/deployment/">Deployment</a></li><li><a href="/operations/production-operator-runbook/">operations/production-operator-runbook</a></li><li><a href="/upgrade/">Upgrade</a></li><li><a href="/troubleshooting/">Troubleshooting</a></li></ul></div><div class="nav-section"><strong>User guide</strong><ul><li><a href="/user-guide/">User Guide</a></li></ul></div><div class="nav-section"><strong>Developer guide</strong><ul><li><a href="/developer-guide/">Developer Guide</a></li><li><a href="/architecture/">Architecture</a></li><li><a href="/modules/">Modules</a></li><li><a href="/configuration/">Configuration</a></li><li><a href="/cli/">Command Line</a></li><li><a href="/api/">API</a></li><li><a href="/admin/">Admin</a></li><li><a href="/themes/">Themes</a></li><li><a href="/testing/">Testing</a></li></ul></div><div class="nav-section"><strong>Project</strong><ul><li><a class="active" aria-current="page" href="/releases/current-development/">Current Development</a></li><li><a href="/release-checklist/">Release Checklist</a></li></ul></div></nav><main class="content"><h1 id="current-development-line">Current development line</h1>
 <h2 id="version">Version</h2>
-<p><code>v0.3.2-alpha.4</code> release candidate</p>
+<p><code>v0.3.2-alpha.4</code> published public-alpha baseline; no next release version selected</p>
 <h2 id="release-baseline">Release baseline</h2>
 <ul>
-<li>Latest immutable release: <code>v0.3.2-alpha.3</code> at <code>4676b012bc579d6f66f20aa317c4da862d5f045a</code>.</li>
-<li>Previous immutable release: <code>v0.3.2-alpha.2</code> at <code>dcdbeedc2f7d394481afc2ae889a7f23205c7730</code>.</li>
+<li>Latest immutable release: <code>v0.3.2-alpha.4</code> at <code>74db4e87c43999da84e59329dab6ff83d399dbb6</code>.</li>
+<li>Previous immutable release: <code>v0.3.2-alpha.3</code> at <code>4676b012bc579d6f66f20aa317c4da862d5f045a</code>.</li>
 <li>Active branch: <code>dev</code>.</li>
 <li>Zoosper remains public alpha software. No stable release has shipped.</li>
 </ul>
 <h2 id="development-direction">Development direction</h2>
-<p>The 0.3.2 line is the beta-readiness public-alpha progression after the substantial 0.3.0 alpha series. Continue product-facing CMS capability, extension ergonomics, API parity, documentation, and release hardening while preserving the verified security, ownership, data-integrity, presentation, artifact, and API Grid boundaries shipped through <code>v0.3.2-alpha.1</code>.</p>
+<p>The 0.3.2 line is the beta-readiness public-alpha progression after the substantial 0.3.0 alpha series. Continue only the required C1-C5 closure work in ROADMAP.md, without adding new product features while preserving the verified security, ownership, data-integrity, presentation, artifact, and API Grid boundaries shipped through <code>v0.3.2-alpha.1</code>.</p>
 <h2 id="release-discipline">Release discipline</h2>
 <ul>
 <li>Keep runtime identity, API health output, Admin presentation, changelog, roadmap, and public documentation aligned.</li>
 <li>Keep architecture documentation and each package README current with every phase.</li>
 <li>Preserve clean worktrees, bounded diffs, full tests, strict quality checks, Composer validation, dependency audit, manifest freshness, foreign-key reconciliation, and runtime smoke evidence before each release.</li>
-<li>Do not modify or retarget the immutable <code>v0.3.2-alpha.3</code> tag.</li>
+<li>Do not modify or retarget the immutable <code>v0.3.2-alpha.4</code> or <code>v0.3.2-alpha.3</code> tags.</li>
+<li>Alpha.4 publication does not claim production deployment acceptance or final programme closure.</li>
 </ul>
 <h2 id="beta-readiness-composer-policy">Beta-readiness Composer policy</h2>
-<p>The 0.3.2 alpha development line removes first-party <code>dev-dev</code> dependency coupling. All 33 first-party path packages advance together to the explicit installable <code>0.3.2-alpha.4</code> Composer package candidate from the root repository map and continue to consume compatible first-party packages through <code>^0.3.1@alpha</code>. The release candidate keeps package compatibility independent of the Git branch name.</p></main></div><footer>Zoosper CMS documentation</footer></body></html>
+<p>The 0.3.2 alpha development line removes first-party <code>dev-dev</code> dependency coupling. All 33 first-party path packages retain the explicit installable <code>0.3.2-alpha.4</code> Composer package version from the root repository map and continue to consume compatible first-party packages through <code>^0.3.1@alpha</code>. The published release keeps package compatibility independent of the Git branch name.</p></main></div><footer>Zoosper CMS documentation</footer></body></html>

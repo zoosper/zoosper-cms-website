@@ -14,6 +14,7 @@
 <p>Run focused Pest tests first, then the full suite. Before committing, run module compilation, the strict gate and release checks.</p>
 <h2 id="design-rules">Design rules</h2>
 <p>Controllers are thin HTTP adapters. Business rules belong in services. Persistence belongs in repositories. Templates own markup. Modules expose contracts through configuration, services, routes, permissions, assets and migrations.</p>
+<p>A first-party package must declare the owning Composer package for every Marko namespace used by its runtime source. A root or sibling transitive dependency is not sufficient; direct imports and direct requirements must remain aligned.</p>
 <p>Declare each route method and path only once across enabled modules. The Router rejects duplicate normalised method-and-path registrations; use a distinct method or path rather than relying on module order or silent replacement. Authenticated-only Admin routes and controller-authorised PAT API routes remain valid current patterns until a separate route-metadata decision changes them.</p>
 <h2 id="api-grid-generator">API Grid generator</h2>
 <p>Run <code>php8.5 bin/zoosper make:api-grid Acme/RemoteRecords --key=acme.remote-records --route=/admin/remote-records</code> to create a standalone package skeleton. The generated integration is deliberately disabled. Developers must implement endpoint-specific mapping, deployment-owned base URL and credentials, permissions, controller and feature presentation before enabling its route or menu.</p>

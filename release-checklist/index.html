@@ -22,6 +22,27 @@
 <li>Globally unique migration basenames and disposable release-upgrade rehearsal</li>
 <li>Annotated immutable release tag</li>
 </ul>
+<h2 id="release-recommendation-and-approval-protocol">Release recommendation and approval protocol</h2>
+<p>Every verified development cohort ends with one explicit release judgement recorded in the handoff or verification evidence:</p>
+<ul>
+<li><strong>Continue on <code>dev</code></strong> when required closure work remains or the cohort is not a coherent release boundary.</li>
+<li><strong>Prepare a release candidate rehearsal</strong> when the accumulated line is coherent and documentation truth, upgrade/fresh-install evidence, static analysis, tests, quality, package readiness, and operational checks are ready to be rerun against one exact commit.</li>
+<li><strong>Recommend an immutable tag</strong> only after the exact candidate commit passes the complete release checklist, produces deterministic artifact and checksum evidence, has accurate release identity and documentation, and has no unresolved blocker for the proposed release channel.</li>
+<li><strong>Recommend promotion to <code>master</code></strong> only after the annotated tag, public release metadata, artifact, and checksum resolve to the same approved commit and the ancestry checks in the release-promotion runbook pass.</li>
+<li><strong>Hold release</strong> whenever evidence is missing, conflicting, stale, or identifies a release blocker; record the blocker and the next bounded verification instead of guessing.</li>
+</ul>
+<p>The recommendation is advisory. Creating or moving a tag, publishing a release or artifact, promoting <code>master</code>, and deploying remain explicit release-owner approvals. Never retag an immutable release, promote an untagged development tip, or merge post-release <code>dev</code> work into <code>master</code> as part of promotion.</p>
+<h3 id="evidence-required-for-a-tag-recommendation">Evidence required for a tag recommendation</h3>
+<ul>
+<li>Clean worktree with local <code>HEAD</code> and <code>origin/dev</code> aligned on the exact candidate commit.</li>
+<li>Release identity, changelog, roadmap, current-development page, Admin version, and API health aligned.</li>
+<li>Blocking Psalm with stale-baseline rejection, complete Pest, strict quality, JavaScript gates, Composer validation/audit, and package-readiness checks green.</li>
+<li>Fresh-install, latest-release upgrade, supported older-release upgrade, target-MySQL migration/foreign-key, documentation-build, and isolated locked-install evidence green where required by the release channel.</li>
+<li>Two deterministic production-artifact builds with matching SHA-256, verified manifest, prohibited-path audit, and isolated extraction acceptance.</li>
+<li>Security and operations review complete for the intended channel, including unresolved C1-C5 items explicitly classified as blocker, accepted prerelease limitation, or deferred non-release work.</li>
+</ul>
+<h3 id="promotion-recommendation">Promotion recommendation</h3>
+<p>A tag recommendation and a <code>master</code> promotion recommendation are separate decisions. Do not recommend promotion until the immutable tag and published release have been independently verified. Promote <code>master</code> only to the peeled release commit by the exact process in <code>docs/releases/release-promotion.md</code>; preserve later <code>dev</code> commits on <code>dev</code>.</p>
 <h2 id="starter-experience">Starter experience</h2>
 <ul>
 <li>Run <code>php8.5 bin/zoosper starter:install</code> twice and verify the second run retains the Site and Pages.</li>

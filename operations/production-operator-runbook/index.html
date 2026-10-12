@@ -60,7 +60,7 @@ php8.5 bin/zoosper module:manifest:check
 php8.5 bin/zoosper release:check</code></pre>
 <p>Require the compiled manifest to be fresh and every release check to pass. Ensure <code>var/cache</code>, <code>var/log</code>, the application-owned session directory, HTML Purifier cache, private Media storage, and controlled public Media directory have the minimum required ownership and permissions.</p>
 <h2 id="9-schedule-maintenance-and-workers">9. Schedule maintenance and workers</h2>
-<p>Schedule <code>php8.5 bin/zoosper rate-limit:prune</code> with overlap protection. If queued Media processing is enabled, run <code>php8.5 bin/zoosper media:process-queue</code> under a supervised worker and monitor failures. See the rate-limit pruning runbook for scheduler examples.</p>
+<p>Schedule <code>php8.5 bin/zoosper rate-limit:prune</code> with overlap protection. Run <code>php8.5 bin/zoosper media:process-queue</code> under a supervised worker and alert on a non-zero batch exit. Monitor <code>php8.5 bin/zoosper media:queue:status --format=json</code> for pending and processing depth, pending retries, failed jobs, oldest-pending age, queue wait, and processing latency. The status command is read-only and emits no filenames, paths, plans, or error text. See the rate-limit pruning runbook for scheduler examples.</p>
 <h2 id="10-security-disclosure-and-dependency-monitoring">10. Security disclosure and dependency monitoring</h2>
 <p>Monitor the private mailbox in <code>SECURITY.md</code> and follow its acknowledgement and coordinated-disclosure process. Do not ask reporters to open public issues or include live credentials, tokens, TOTP codes, recovery codes, or payment data.</p>
 <p>Run <code>composer audit --locked --no-interaction</code> in CI and before releases. Repository owners must separately enable and monitor dependency alerts, code scanning, secret scanning, and branch protection in the repository hosting settings. Treat new advisories or leaked-secret alerts as operational incidents, rotate affected credentials, and record only secret-free evidence.</p>
@@ -74,6 +74,6 @@ php8.5 bin/zoosper release:check</code></pre>
 <li>API health and authenticated API access.</li>
 <li>Home, About, Page rendering, Menus, Media delivery, and Admin Grid workflows.</li>
 <li>Application and exception logs contain no secrets.</li>
-<li><code>module:manifest:check</code>, <code>schema:foreign-keys:status --format=json</code>, and <code>release:check</code> remain green.</li>
+<li><code>module:manifest:check</code>, <code>schema:foreign-keys:status --format=json</code>, <code>media:queue:status --format=json</code>, and <code>release:check</code> remain green; Media queue depth, retries, failures, and latency remain within deployment-owned alert thresholds.</li>
 </ul>
 <p>Keep the previous code, database backup, and uploaded-Media rollback point until the deployment is accepted.</p></main></div><footer>Zoosper CMS documentation</footer></body></html>

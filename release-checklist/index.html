@@ -12,7 +12,7 @@
 <li>Secret presence, strength, and placeholder validation (<code>APP_KEY</code>, <code>TWO_FACTOR_ENCRYPTION_KEY</code>, <code>RATE_LIMIT_IDENTITY_SALT</code>, and Redis-only <code>CACHE_ENCRYPTION_KEY</code>)</li>
 <li>Redis production policy when selected: authenticated staging/production Redis, strong signed-value key, secret-safe diagnostics, and no Redis requirements for the file driver</li>
 <li>Content Security Policy (CSP) enforcement verification (<code>report_only =&gt; false</code>)</li>
-<li>Media derivative queue worker health and pre-decode limit checks</li>
+<li>Media derivative queue worker health, non-zero failure exit, pre-decode limit checks, and <code>media:queue:status --format=json</code> evidence for depth, retries, failures, oldest-pending age, queue wait, and processing latency</li>
 <li>Module asset pipeline adversarial path-normalisation and extension-allow-list tests</li>
 <li>Module manifest compilation and freshness (<code>module:manifest:check</code>)</li>
 <li>Release checks under production-safe configuration (<code>release:check</code>)</li>

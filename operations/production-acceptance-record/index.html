@@ -1,0 +1,94 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Zoosper CMS documentation"><title>Production acceptance record · Zoosper CMS</title><link rel="icon" href="/assets/favicon.svg"><link rel="stylesheet" href="/assets/site.css"></head><body><header><a class="brand" href="/"><img src="/assets/logo.svg" alt="">Zoosper CMS</a><span>Documentation</span><a href="https://github.com/zoosper/zoosper">GitHub</a></header><div class="shell"><nav class="sidebar" aria-label="Documentation"><div class="nav-section"><strong>Overview</strong><ul><li><a href="/">Overview</a></li></ul></div><div class="nav-section"><strong>Getting started</strong><ul><li><a href="/getting-started/">Getting Started</a></li><li><a href="/deployment/">Deployment</a></li><li><a href="/operations/production-operator-runbook/">operations/production-operator-runbook</a></li><li><a class="active" aria-current="page" href="/operations/production-acceptance-record/">Production Acceptance Record</a></li><li><a href="/upgrade/">Upgrade</a></li><li><a href="/troubleshooting/">Troubleshooting</a></li></ul></div><div class="nav-section"><strong>User guide</strong><ul><li><a href="/user-guide/">User Guide</a></li></ul></div><div class="nav-section"><strong>Developer guide</strong><ul><li><a href="/developer-guide/">Developer Guide</a></li><li><a href="/architecture/">Architecture</a></li><li><a href="/modules/">Modules</a></li><li><a href="/configuration/">Configuration</a></li><li><a href="/cli/">Command Line</a></li><li><a href="/api/">API</a></li><li><a href="/admin/">Admin</a></li><li><a href="/themes/">Themes</a></li><li><a href="/testing/">Testing</a></li></ul></div><div class="nav-section"><strong>Project</strong><ul><li><a href="/releases/current-development/">Current Development</a></li><li><a href="/releases/release-promotion/">Release Promotion</a></li><li><a href="/release-checklist/">Release Checklist</a></li></ul></div></nav><main class="content"><h1 id="production-acceptance-record">Production acceptance record</h1>
+<p>Use this record for one exact staging or production deployment. It is evidence, not a substitute for the <a href="/operations/production-operator-runbook/">production operator runbook</a>. Copy the template outside the repository for each deployment and retain only secret-free output. Never record credentials, tokens, reset URLs, TOTP or recovery codes, session identifiers, SMTP passwords, private Media paths, or customer data.</p>
+<h2 id="deployment-identity">Deployment identity</h2>
+<ul>
+<li>Environment name:</li>
+<li>Acceptance date and UTC time:</li>
+<li>Operator:</li>
+<li>Exact Git commit or verified artifact SHA-256:</li>
+<li>Release/version reported by <code>php8.5 bin/zoosper version</code>:</li>
+<li>Canonical origin, without credentials, query, or fragment:</li>
+<li>Selected cache backend: <code>file</code> / <code>redis</code></li>
+<li>Database engine and version:</li>
+<li>Rollback code reference recorded: <code>yes</code> / <code>no</code></li>
+<li>Database backup recorded: <code>yes</code> / <code>no</code></li>
+<li>Uploaded-Media rollback point recorded: <code>yes</code> / <code>no</code></li>
+</ul>
+<p>A record is accepted only when every applicable check is <code>PASS</code>, every non-applicable check has an explicit deployment-specific reason, and no secret-bearing evidence is attached.</p>
+<h2 id="automated-and-configuration-checks">Automated and configuration checks</h2>
+<p>Record the command, exit status, and a bounded secret-free result. Do not paste environment values.</p>
+<ul>
+<li>[ ] <code>PASS</code> Locked production Composer install completed from the committed lock file.</li>
+<li>[ ] <code>PASS</code> <code>composer validate --strict</code>.</li>
+<li>[ ] <code>PASS</code> <code>composer check-platform-reqs --no-dev</code>.</li>
+<li>[ ] <code>PASS</code> <code>composer audit --locked --no-interaction</code>.</li>
+<li>[ ] <code>PASS</code> <code>php8.5 bin/zoosper security:generate-secrets --check</code> without disclosed values.</li>
+<li>[ ] <code>PASS</code> <code>php8.5 bin/zoosper module:manifest:check</code>.</li>
+<li>[ ] <code>PASS</code> <code>php8.5 bin/zoosper schema:foreign-keys:status --format=json</code>; require <code>add=0</code>, <code>mismatch=0</code>, and <code>sqlite_rebuild_required=0</code>.</li>
+<li>[ ] <code>PASS</code> <code>php8.5 bin/zoosper media:queue:status --format=json</code>; record only aggregate queue telemetry.</li>
+<li>[ ] <code>PASS</code> <code>php8.5 bin/zoosper release:check</code>.</li>
+<li>[ ] <code>PASS</code> Application and exception logs inspected without copying secrets into this record.</li>
+</ul>
+<h2 id="public-origin-proxy-session-and-webroot">Public origin, proxy, session, and webroot</h2>
+<ul>
+<li>[ ] <code>PASS</code> Canonical HTTPS redirect and <code>APP_URL</code> behaviour verified.</li>
+<li>[ ] <code>PASS</code> Direct requests cannot use untrusted forwarded headers to spoof HTTPS or client identity.</li>
+<li>[ ] <code>PASS</code> Requests through configured trusted proxies resolve HTTPS and client identity correctly.</li>
+<li>[ ] <code>PASS</code> Session cookie is Secure and uses the intended SameSite policy.</li>
+<li>[ ] <code>PASS</code> HSTS appears on HTTPS and is absent from plain HTTP responses before redirect.</li>
+<li>[ ] <code>PASS</code> Web-server document root is <code>public/</code>.</li>
+<li>[ ] <code>PASS</code> Repository root, <code>.env</code>, Git metadata, Composer metadata, <code>app/</code>, <code>packages/</code>, <code>config/</code>, <code>storage/</code>, and <code>var/</code> are not publicly retrievable.</li>
+<li>[ ] <code>PASS</code> Original Media remains outside <code>public/</code>; only controlled validated copies are publicly served.</li>
+</ul>
+<h2 id="cache-and-smtp">Cache and SMTP</h2>
+<ul>
+<li>[ ] <code>PASS</code> Selected cache backend works in the target environment.</li>
+<li>[ ] <code>PASS</code> If Redis is selected, authentication, dedicated database/prefix, network restriction, and a dedicated strong cache encryption key were verified without recording values.</li>
+<li>[ ] <code>N/A</code> If file cache is selected, Redis checks are explicitly not applicable.</li>
+<li>[ ] <code>PASS</code> Redacted SMTP configuration has no warnings.</li>
+<li>[ ] <code>PASS</code> SMTP endpoint is reachable from the application host.</li>
+<li>[ ] <code>PASS</code> Controlled password-reset delivery reached the test administrator.</li>
+<li>[ ] <code>PASS</code> Delivered reset link uses the exact canonical <code>APP_URL</code> and configured Admin base path.</li>
+<li>[ ] <code>PASS</code> Reset credential was single-use and was not copied into logs or this record.</li>
+</ul>
+<h2 id="enforcing-csp-browser-journey">Enforcing CSP browser journey</h2>
+<p>Confirm the response uses <code>Content-Security-Policy</code>, not report-only mode. Record browser/version and a secret-free pass/fail summary. Any blocked required script, style, image, font, or connection is a failure.</p>
+<ul>
+<li>[ ] <code>PASS</code> Login, logout, TOTP, and recovery-code authentication.</li>
+<li>[ ] <code>PASS</code> Password-reset request and completion.</li>
+<li>[ ] <code>PASS</code> Dashboard and personalisation.</li>
+<li>[ ] <code>PASS</code> Settings, Users, Roles, and permission-sensitive actions.</li>
+<li>[ ] <code>PASS</code> Pages, revisions, preview, publication, and lifecycle actions.</li>
+<li>[ ] <code>PASS</code> Menus and frontend navigation.</li>
+<li>[ ] <code>PASS</code> Media library, upload, picker, delivery, and lifecycle actions.</li>
+<li>[ ] <code>PASS</code> Admin Grid filters, columns, saved views, pagination, exports, and destructive confirmations.</li>
+<li>[ ] <code>PASS</code> Browser console contains no deployment-blocking CSP violations.</li>
+</ul>
+<h2 id="database-workers-and-scheduled-maintenance">Database, workers, and scheduled maintenance</h2>
+<ul>
+<li>[ ] <code>PASS</code> Target MySQL/MariaDB migration completed against a recorded backup and was not blindly retried after failure.</li>
+<li>[ ] <code>PASS</code> Post-migration foreign-key status is fully reconciled.</li>
+<li>[ ] <code>PASS</code> Queue worker is supervised and alerts on a non-zero batch exit.</li>
+<li>[ ] <code>PASS</code> Queue depth, retries, failures, oldest-pending age, queue wait, and processing latency are within deployment-owned thresholds.</li>
+<li>[ ] <code>PASS</code> <code>rate-limit:prune</code> is scheduled with overlap protection.</li>
+<li>[ ] <code>PASS</code> Scheduler and queue-worker ownership, restart policy, logs, and alert destination are recorded in the deployment platform.</li>
+</ul>
+<h2 id="post-deployment-smoke">Post-deployment smoke</h2>
+<ul>
+<li>[ ] <code>PASS</code> API health and authenticated API access.</li>
+<li>[ ] <code>PASS</code> Home, About, Page rendering, Menus, and Media delivery.</li>
+<li>[ ] <code>PASS</code> Admin login/logout and authenticated Admin smoke journey.</li>
+<li>[ ] <code>PASS</code> TOTP, recovery code, and password-reset delivery/completion.</li>
+<li>[ ] <code>PASS</code> Manifest, foreign-key, Media queue, and release checks remain green after deployment.</li>
+<li>[ ] <code>PASS</code> Previous code, database backup, and Media rollback point remain available until acceptance.</li>
+</ul>
+<h2 id="exceptions-and-decision">Exceptions and decision</h2>
+<p>For each exception, record the check, observed fact, owner, disposition, and linked secret-free evidence. Do not mark an unverified item as passed.</p>
+<ul>
+<li>Exceptions: none / listed below</li>
+<li>Acceptance decision: <code>ACCEPTED</code> / <code>REJECTED</code></li>
+<li>Decision owner:</li>
+<li>Decision UTC time:</li>
+<li>Follow-up work:</li>
+</ul>
+<p>C4.2 can be marked complete only after this record is filled from the target environment and independently reviewed. Repository-local tests and static contracts do not replace target-environment evidence.</p></main></div><footer>Zoosper CMS documentation</footer></body></html>

@@ -76,4 +76,6 @@ php8.5 bin/zoosper release:check</code></pre>
 <li>Application and exception logs contain no secrets.</li>
 <li><code>module:manifest:check</code>, <code>schema:foreign-keys:status --format=json</code>, <code>media:queue:status --format=json</code>, and <code>release:check</code> remain green; Media queue depth, retries, failures, and latency remain within deployment-owned alert thresholds.</li>
 </ul>
-<p>Keep the previous code, database backup, and uploaded-Media rollback point until the deployment is accepted.</p></main></div><footer>Zoosper CMS documentation</footer></body></html>
+<p>Keep the previous code, database backup, and uploaded-Media rollback point until the deployment is accepted.</p>
+<h3 id="authentication-negative-paths">Authentication negative paths</h3>
+<p>Protected first-party APIs return <code>401</code> for missing or invalid bearer credentials and <code>403</code> for an authenticated principal lacking the required PAT scope or current owner permission. Authorisation must precede object lookup. Two-factor enrolment setup material is single-attempt and a failed or repeated confirmation must start a fresh setup.</p></main></div><footer>Zoosper CMS documentation</footer></body></html>

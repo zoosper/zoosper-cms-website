@@ -67,6 +67,13 @@ NEXT_VERSION=&lt;next-development-version&gt;</code></pre>
 <li>For SQLite, use explicit data-preserving rebuild migrations for existing-table foreign-key changes.</li>
 <li>Before release, compile the module manifest so the independent <code>module-manifest</code> readiness check is fresh.</li>
 </ul>
+<h2 id="dependency-and-disclosure-verification">Dependency and disclosure verification</h2>
+<ul>
+<li>Run <code>composer audit --locked --no-interaction</code> and <code>npm audit --package-lock-only --include=dev --audit-level=high</code>; both must report no blocking advisories.</li>
+<li>Confirm the locked <code>node_modules/source-map-js</code> entry remains on the reviewed patched line (<code>1.2.2</code> at this baseline).</li>
+<li>Exercise the private <code>security@zoosper.com</code> reporting path and retain owner-controlled evidence that delivery, monitoring, acknowledgement, triage, embargo and publication boundaries work. Do not store reporter content or live secrets in repository evidence.</li>
+<li>Keep C4.2 target-environment production acceptance open until its operator-runbook checks are executed and recorded in that environment.</li>
+</ul>
 <h2 id="production-platform-verification">Production platform verification</h2>
 <ul>
 <li>Run <code>composer check-platform-reqs --no-dev</code> and confirm the production PHP runtime provides cURL, GD, mbstring, PDO and PDO MySQL.</li>
